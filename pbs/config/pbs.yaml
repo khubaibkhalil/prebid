@@ -1,0 +1,32 @@
+host: 0.0.0.0
+port: 8000
+external_url: http://localhost:8000
+admin:
+  port: 6060
+
+auction_timeouts_ms:
+  default: 1200
+  max: 1200
+
+metrics:
+  prometheus:
+    port: 6061
+    namespace: pbs
+    timeout_ms: 10000
+
+stored_requests:
+  filesystem:
+    enabled: true
+    directorypath: /etc/config/stored_requests
+
+adapters:
+  appnexus:
+    enabled: true
+    endpoint: http://mock-bidder:8081/openrtb2
+    usersync:
+      disabled: true
+
+currency_converter:
+  fetch_url: http://mock-bidder:8081/currency
+  fetch_interval_seconds: 0
+  fetch_timeout_ms: 2000
