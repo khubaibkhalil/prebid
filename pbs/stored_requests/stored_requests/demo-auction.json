@@ -1,0 +1,14 @@
+{
+  "tmax": 1200,
+  "site": {
+    "page": "http://localhost:8080",
+    "domain": "localhost"
+  },
+  "ext": {
+    "prebid": {
+      "targeting": {
+        "includewinners": true
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+services:
+  mock-bidder:
+    build: ./mock-bidder
+    ports:
+      - "8081:8081"
+    environment:
+      BIDDER_PORT: "8081"
+      BIDDER_CPM: "1.23"
+      BIDDER_NOBID_RATE: "0"
+      BIDDER_ERROR_RATE: "0"
+      BIDDER_LATENCY_MS: "0"
+
+  pbs:
+    image: prebid/prebid-server:latest
+    ports:
+      - "8000:8000"
+      - "6060:6060"
+      - "6061:6061"
+    volumes:
+      - ./pbs/config/pbs.yaml:/etc/config/pbs.yaml:ro
+      - ./pbs/stored_requests:/etc/config/stored_requests:ro
+    depends_on:
+      - mock-bidder
+
+  demo-site:
+    image: nginx:alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./demo-site:/usr/share/nginx/html:ro
+      - ./demo-site/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - pbs
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - mock-bidder
+      - pbs
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
